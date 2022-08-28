@@ -1,10 +1,11 @@
 ﻿using eTickets.Data;
+using eTickets.Data.Base;
 using System;
 using System.Collections.Generic;
 
 namespace eTickets.Models
 {
-    public class Movie
+    public class Movie : IEntityBase
     {
         public int Id { get; set; }
         public string Name { get; set; }

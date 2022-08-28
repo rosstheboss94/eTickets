@@ -26,6 +26,7 @@ namespace eTickets
             services.AddScoped<IActorsRepository, ActorsRepository>();
             services.AddScoped<IProducerRepository, ProducerRepository>();
             services.AddScoped<ICinemaRepository, CinemaRepository>();
+            services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddControllersWithViews();
         }
 
