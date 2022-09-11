@@ -1,9 +1,12 @@
 using eTickets.Data;
 using eTickets.Data.Cart;
 using eTickets.Data.Repositories;
+using eTickets.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +26,7 @@ namespace eTickets
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(options => 
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IActorsRepository, ActorsRepository>();
             services.AddScoped<IProducerRepository, ProducerRepository>();
             services.AddScoped<ICinemaRepository, CinemaRepository>();
@@ -33,6 +36,13 @@ namespace eTickets
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(sc => ShoppingCart.GetShoppingCart(sc));
             services.AddSession();
+
+            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+            services.AddMemoryCache();
+            services.AddAuthentication(options => 
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            });
             services.AddControllersWithViews();
         }
 
@@ -55,6 +65,7 @@ namespace eTickets
             app.UseRouting();
             app.UseSession();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -65,6 +76,7 @@ namespace eTickets
             });
 
             Seed.SeedData(app);
+            Seed.SeedUsersAndRolesAsync(app).Wait();
         }
     }
 }

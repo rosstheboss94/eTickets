@@ -1,14 +1,18 @@
 ﻿using eTickets.Data.Cart;
 using eTickets.Data.Repositories;
+using eTickets.Data.Static;
 using eTickets.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace eTickets.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly IMovieRepository _movieRepository;
@@ -24,9 +28,10 @@ namespace eTickets.Controllers
 
         public async Task<IActionResult> Index()
         {
-            string userId = "";
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string userRole = User.FindFirst(ClaimTypes.Role).Value;
 
-            var orders = await _ordersRepository.GetOrdersByUserIdAsync(userId);
+            var orders = await _ordersRepository.GetOrdersByUserIdAndRoleAsync(userId, userRole);
             return View(orders);
         }
 
@@ -69,8 +74,8 @@ namespace eTickets.Controllers
         public async Task<IActionResult> CompleteOrder()
         {
             var items = _shoppingCart.GetShoppingCartItems();
-            string userId = "";
-            string userEmailAddress = "";
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
+            string userEmailAddress = User.FindFirst(ClaimTypes.Email).Value;
 
             await _ordersRepository.StoreOrderAsync(items, userId, userEmailAddress);
             await _shoppingCart.ClearShoppingCartAsync();

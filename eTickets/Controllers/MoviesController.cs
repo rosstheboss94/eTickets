@@ -1,5 +1,7 @@
 ﻿using eTickets.Data.Repositories;
+using eTickets.Data.Static;
 using eTickets.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace eTickets.Controllers
 {
+    [Authorize(Roles = UserRoles.Admin)]
     public class MoviesController : Controller
     {
         private readonly IMovieRepository _movieRepository;
@@ -16,12 +19,14 @@ namespace eTickets.Controllers
             _movieRepository = movieRepository;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var movies = await _movieRepository.GetAllAsync(n => n.Cinema);
             return View(movies);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Filter(string searchString)
         {
             var movies = await _movieRepository.GetAllAsync(n => n.Cinema);
@@ -35,6 +40,7 @@ namespace eTickets.Controllers
             return View("Index", movies);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             var moviesDetail = await _movieRepository.GetMovieByIdAsync(id);
